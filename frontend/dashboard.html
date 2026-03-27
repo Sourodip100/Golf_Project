@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Impact Golf</title>
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #0f172a; color: #f8fafc; padding: 2rem; }
+        .container { max-width: 800px; margin: 0 auto; background: #1e293b; padding: 2rem; border-radius: 12px; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; }
+        input, button { width: 100%; padding: 12px; margin: 8px 0; border-radius: 6px; border: none; }
+        button { background-color: #3b82f6; color: white; cursor: pointer; font-weight: bold; }
+        .card { background: #334155; padding: 1rem; border-radius: 8px; margin-bottom: 1rem; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Welcome to your Dashboard</h1>
+        <div class="grid">
+            <div>
+                <div class="card">
+                    <h3>Your Impact</h3>
+                    <p id="subStatus"></p>
+                    <p id="charityName"></p>
+                </div>
+                
+                <div class="card">
+                    <h3>Submit New Score</h3>
+                    <form id="scoreForm">
+                        <input type="number" id="score" min="1" max="45" placeholder="Stableford Score (1-45)" required>
+                        <input type="date" id="datePlayed" required>
+                        <button type="submit">Submit Score</button>
+                    </form>
+                </div>
+            </div>
+            
+            <div class="card">
+                <h3>Recent Scores (Rolling 5)</h3>
+                <div id="scoreList"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const userId = localStorage.getItem('userId');
+
+        if (!userId || userId === 'undefined') {
+            window.location.href = 'login.html';
+        }
+
+        async function loadDashboard() {
+            try {
+                const userRes = await fetch(`/api/user/${userId}`);
+                const userData = await userRes.json();
+                
+                if (userData) {
+                    document.getElementById('subStatus').innerText = `Subscription: ${userData.subscription_status?.toUpperCase() || 'ACTIVE'}`;
+                    document.getElementById('charityName').innerText = `Supporting: ${userData.charities?.name || 'Local Charity'}`;
+                }
+
+                const scoresRes = await fetch(`/api/scores/${userId}`);
+                const scoresData = await scoresRes.json();
+                const scoreList = document.getElementById('scoreList');
+                
+                if (scoresData && scoresData.length > 0) {
+                    scoreList.innerHTML = scoresData.map(s => `
+                        <div style="background:#475569; padding:10px; margin:5px 0; border-radius:4px;">
+                            <strong>${s.score} pts</strong> - ${new Date(s.date_played).toLocaleDateString()}
+                        </div>
+                    `).join('');
+                } else {
+                    scoreList.innerHTML = '<p>No scores submitted yet.</p>';
+                }
+            } catch (err) {
+                console.error("Dashboard load error:", err);
+            }
+        }
+
+        document.getElementById('scoreForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const score = document.getElementById('score').value;
+            const datePlayed = document.getElementById('datePlayed').value;
+
+            const response = await fetch(`/api/scores`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ userId, score, datePlayed })
+            });
+
+            if (response.ok) {
+                alert('Score submitted successfully!');
+                window.location.reload(); 
+            } else {
+                const errorData = await response.json();
+                alert('Error: ' + errorData.error);
+            }
+        });
+
+        loadDashboard();
+    </script>
+</body>
+</html>
+

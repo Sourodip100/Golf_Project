@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Sign Up - Impact Golf</title>
+    <style>
+        body { font-family: sans-serif; background: #0f172a; color: white; display: flex; justify-content: center; align-items: center; height: 100vh; }
+        form { background: #1e293b; padding: 40px; border-radius: 12px; width: 300px; }
+        input, select, button { width: 100%; padding: 10px; margin: 10px 0; border-radius: 4px; border: none; }
+        button { background: #3b82f6; color: white; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <form id="signupForm">
+        <h2>Create Account</h2>
+        <input type="email" id="email" placeholder="Email" required>
+        <input type="password" id="password" placeholder="Password" required>
+        <label>Select Your Charity:</label>
+        <select id="charitySelect">
+            <option value="ID_FROM_SUPABASE_FOR_CANCER">Cancer Research</option>
+            <option value="ID_FROM_SUPABASE_FOR_OCEAN">Ocean Cleanup</option>
+            <option value="ID_FROM_SUPABASE_FOR_MENTAL">Mental Health UK</option>
+        </select>
+        <button type="submit">Start Subscription</button>
+        <p style="margin-top: 15px; font-size: 0.9rem; text-align: center;">
+        Already have an account? <a href="login.html" style="color: #3b82f6; text-decoration: none; font-weight: bold;">Log In here</a>
+        </p>
+    </form>
+    <script src="auth.js"></script>
+</body>
+</html>
